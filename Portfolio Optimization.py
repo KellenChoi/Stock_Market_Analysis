@@ -111,6 +111,12 @@ for ind in range(num_ports):
 
     # Sharpe Ratio
     sharpe_arr[ind] = ret_arr[ind]/vol_arr[ind]
+    
+sharpe_arr.max()
+sharpe_arr.argmax()
+all_weights[1419,:]
+max_sr_ret = ret_arr[1419]
+max_sr_vol = vol_arr[1419]
 
 #### Plotting the data
 plt.figure(figsize=(12,8))
