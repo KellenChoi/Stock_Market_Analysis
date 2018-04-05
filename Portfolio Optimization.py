@@ -113,7 +113,7 @@ for ind in range(num_ports):
     sharpe_arr[ind] = ret_arr[ind]/vol_arr[ind]
     
 sharpe_arr.max()
-sharpe_arr.argmax()
+sharpe_arr.argmax()  # returns back the location of the best sharp ratio
 all_weights[1419,:]
 max_sr_ret = ret_arr[1419]
 max_sr_vol = vol_arr[1419]
@@ -128,6 +128,7 @@ plt.ylabel('Return')
 # Add red dot for max SR
 plt.scatter(max_sr_vol,max_sr_ret,c='red',s=50,edgecolors='black')
 
+## Mathematical Optimization to find good allocation weights
 #### Creating Optimization function
 #### functionalize return and SR operations
 def get_ret_vol_sr(weights):
@@ -166,10 +167,40 @@ init_guess = [0.25,0.25,0.25,0.25]
 opt_results = minimize(neg_sharpe,init_guess,method='SLSQP',bounds=bounds,constraints=cons)
 
 opt_results
-opt_results.x   ### sharp
+opt_results.x 
 get_ret_vol_sr(opt_results.x)
 
 
+### All Optimal Portfolios: Efficient Frontier ( a set of optimal portfolio)
+### The efficient frontier is the set of optimal portfolios that offers the highest expected return 
+### for a defined level of risk or the lowest risk for a given level of expected return
+
+# Our returns go from 0 to somewhere along 0.3
+# Create a linspace number of points to calculate x on
+frontier_y = np.linspace(0,0.3,100) # Change 100 to a lower number for slower computers!
+
+def minimize_volatility(weights):
+    return  get_ret_vol_sr(weights)[1] 
 
 
+frontier_volatility = []
+
+for possible_return in frontier_y:
+    # function for return
+    cons = ({'type':'eq','fun': check_sum},
+            {'type':'eq','fun': lambda w: get_ret_vol_sr(w)[0] - possible_return})
+    
+    result = minimize(minimize_volatility,init_guess,method='SLSQP',bounds=bounds,constraints=cons)
+    
+    frontier_volatility.append(result['fun'])
+
+# plotting 
+plt.figure(figsize=(12,8))
+plt.scatter(vol_arr,ret_arr,c=sharpe_arr,cmap='plasma')
+plt.colorbar(label='Sharpe Ratio')
+plt.xlabel('Volatility')
+plt.ylabel('Return')
+
+# Add frontier line
+plt.plot(frontier_volatility,frontier_y,'g--',linewidth=3)
 
